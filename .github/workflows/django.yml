@@ -15,8 +15,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [ "3.10", "3.11", "3.12" ]
+
+    env:
+      # Adjust if your settings module path is different
+      DJANGO_SETTINGS_MODULE: Django_Documentation.settings
+      PYTHONUNBUFFERED: "1"
 
     steps:
       - name: Checkout code
@@ -38,19 +44,25 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
+          set -e
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then
-            echo "Found requirements.txt"
+            echo "Installing from requirements.txt"
             pip install -r requirements.txt
           else
-            echo "No requirements.txt; installing minimal deps"
+            echo "No requirements.txt found; installing minimal dependencies"
             pip install "Django>=4.2,<6" flake8
           fi
 
-      - name: Run migrations
-        run: python manage.py migrate --noinput
+      - name: Sanity check
+        run: |
+          python -V
+          python -c "import django; print('Django', django.get_version())"
 
-      - name: Lint (flake8)
+      - name: Run migrations
+        run: python manage.py migrate --noinput --verbosity 2
+
+      - name: Lint (flake8)   # keep non-blocking while you stabilize
         continue-on-error: true
         run: flake8 .
 
