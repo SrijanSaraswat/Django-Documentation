@@ -5,14 +5,19 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: {}   # <-- must be nested under `on`
+
+# Cancel previous runs of the same branch (avoids re-running old matrices)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: [ "3.10", "3.11", "3.12" ]
 
     steps:
       - name: Checkout code
@@ -40,7 +45,7 @@ jobs:
         run: |
           python manage.py migrate --noinput
 
-      - name: Lint (flake8)
+      - name: Lint (flake8)   # keep non-blocking while you set up
         continue-on-error: true
         run: |
           pip install flake8
