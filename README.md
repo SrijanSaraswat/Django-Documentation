@@ -12,7 +12,6 @@ Django-Documentation/
 │── .github/workflows/     # CI/CD workflows (GitHub Actions)
 │── Django_Documentation/  # Project settings and configurations
 │── polls/                 # Example Django app (Polls Application)
-│── venv/                  # Virtual environment (not required to push usually)
 │── db.sqlite3             # SQLite database file
 │── manage.py              # Django project management script
 ```
